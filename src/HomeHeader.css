@@ -95,7 +95,7 @@ body{
   
   .homeHeader_otherIcons {
     display: flex;
-    flex-direction: row;
+    flex-direction: row ;
     margin-right: 10px;
     justify-content: center;
   }
@@ -261,7 +261,7 @@ body{
   
   .noNotifDiv img {
     filter: invert(100%);
-    height: 100px;
+    height: 50px;
     margin-left: 20px;
   }
   .dropdown-content2::-webkit-scrollbar {

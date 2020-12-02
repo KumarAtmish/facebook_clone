@@ -12,33 +12,52 @@ function Register() {
     const [birthday, setBirthday] = useState([]);
     const [gender, setGender] = useState("");
 
-    const register = (e) => {
-        e.preventDefault();
-
-        auth.createUserWithEmailAndPassword(email, password).then((auth) =>{
-            console.log(auth)
-            if(auth.user){
-                auth.user.updateProfile({
-                    displayName: firstName + " " + lastName,
-                    photoURL: "https://i.ibb.co/1zmBtwr/84241059-189132118950875-4138507100605120512-n.jpg"
-                }).then((s) => {
-                    console.log("result", s);
-                    db.collection('users').doc(auth.user.uid).set({
-                        uid: auth.user.uid,
-                        displayName: auth.user.displayName,
-                        email:auth.user.email,
-                        photoURL: "https://i.ibb.co/1zmBtwr/84241059-189132118950875-4138507100605120512-n.jpg",
-                        birthday,
-                        gender,
-                        bio:""
-                    }).then((r) => {
-                        history.push("/");
+    const register = (event) => {
+        event.preventDefault();
+        if (birthday[2] >= 2010) {
+            return alert("You are not eligible to register to Facebook!")
+        }
+        auth
+            .createUserWithEmailAndPassword(email, password)
+            .then((auth) => {
+                if (auth.user) {
+                    auth.user.updateProfile({
+                        displayName: firstName + " " + lastName,
+                        photoURL: "https://i.ibb.co/1zmBtwr/84241059-189132118950875-4138507100605120512-n.jpg"
+                    }).then((s) => {
+                        db.collection('users').doc(auth.user.uid).set({
+                            uid: auth.user.uid,
+                            displayName: auth.user.displayName,
+                            email: auth.user.email,
+                            photoURL: "https://i.ibb.co/1zmBtwr/84241059-189132118950875-4138507100605120512-n.jpg",
+                            birthday,
+                            gender,
+                            bio: ""
+                        })
+                            .then((r) => {
+                                history.push("/")
+                            })
                     })
-                })
-            }
-        }).catch((e) => {
-            alert(e.message);
-        })
+                }
+            })
+            .catch((e) => {
+                if (
+                    e.message ===
+                    "The password is invalid or the user does not have a password."
+                ) {
+                    alert("Please check your credentials again");
+                } else if (
+                    e.message ===
+                    "There is no user record corresponding to this identifier. The user may have been deleted."
+                ) {
+                    history.push("/register");
+                    window.scrollTo({
+                        top: document.body.scrollHeight,
+                        left: 0,
+                        behavior: "smooth",
+                    });
+                }
+            });
     }
     return (
         <div className="register">
@@ -74,18 +93,16 @@ function Register() {
                                setEmail(e.target.value);
                             }}
                             type="email"
-                            placeholder="Email"
-                            required  
+                            placeholder="Email"  
                         />
                     </center>
                     <center>
                         <input 
-                           onChange={(e) => {
-                               setPassword(e.target.value);
-                            }}
+                           onChange={(event) =>
+                               setPassword(event.target.value)
+                            }
                             type="password"
-                            placeholder="New Password"
-                            required  
+                            placeholder="New Password"  
                         />
                     </center>
                     <center>
